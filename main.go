@@ -19,6 +19,6 @@ func InitDependencies(router *gin.Engine) {
 	// from transient dependencies
 	var itemRepo = Repositories.NewItemRepository()
 	var receiptRepo = Repositories.NewReceiptRepository(itemRepo)
-	var receiptService = Services.NewReceiptService(receiptRepo)
+	var receiptService = Services.NewReceiptService(receiptRepo, itemRepo)
 	Controllers.InitReceiptController(router, receiptService)
 }

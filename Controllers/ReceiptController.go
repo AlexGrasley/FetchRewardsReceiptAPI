@@ -4,18 +4,23 @@ import (
 	"FetchRewardsReceiptAPI/Models"
 	"FetchRewardsReceiptAPI/Services"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 	"net/http"
 )
 
 var _receiptService *Services.ReceiptService
 
 func GetReceiptPoints(c *gin.Context) {
-	// Logic to fetch receipts from the database or any data source
-	//receipts := []Models.ReceiptViewModel{
-	//	// Example data
-	//	{Retailer: "Retailer1", PurchaseDate: "2023-10-01", PurchaseTime: "10:00", Total: 100.0, Items: []Models.ItemViewModel{{Description: "Item1", Price: 50.0}}},
-	//}
-	//c.JSON(http.StatusOK, receipts)
+	receiptId := c.Param("id")
+
+	id, err := uuid.FromString(receiptId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	points := _receiptService.GetReceiptPoints(id)
+	c.JSON(http.StatusOK, points)
 }
 
 // CreateReceipt handles POST requests to create a new receipt
@@ -43,5 +48,6 @@ func InitReceiptController(router *gin.Engine, receiptService *Services.ReceiptS
 	receiptGroup := router.Group("/receipts")
 	{
 		receiptGroup.POST("/process", CreateReceipt)
+		receiptGroup.GET("/:id/points", GetReceiptPoints)
 	}
 }

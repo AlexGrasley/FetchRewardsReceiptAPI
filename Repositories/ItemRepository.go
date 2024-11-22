@@ -20,10 +20,10 @@ func NewItemRepository() *ItemRepository {
 // AddItem Adds a new item to storage. Currently, does not consider duplicates.
 // Future enhancements could prevent storing duplicates, but need to consider
 // variations in item price between retailers or over time.
-func (r *ItemRepository) AddItem(itemViewModel Models.ItemViewModel) (uuid.UUID, error) {
+func (r *ItemRepository) AddItem(itemViewModel *Models.ItemViewModel) (uuid.UUID, error) {
 	id := uuid.NewV4()
 
-	price, err := strconv.ParseFloat(itemViewModel.Price, 32)
+	price, err := strconv.ParseFloat(itemViewModel.Price, 64)
 
 	if err != nil {
 		return uuid.UUID{}, err
@@ -39,12 +39,12 @@ func (r *ItemRepository) AddItem(itemViewModel Models.ItemViewModel) (uuid.UUID,
 	return id, nil
 }
 
-func (r *ItemRepository) GetItems(ids []uuid.UUID) []Entities.Item {
-	items := make([]Entities.Item, 0, len(ids))
+func (r *ItemRepository) GetItems(ids []uuid.UUID) []*Entities.Item {
+	items := make([]*Entities.Item, 0, len(ids))
 
 	for _, id := range ids {
 		if item, ok := r.items[id]; ok {
-			items = append(items, item)
+			items = append(items, &item)
 		}
 	}
 
