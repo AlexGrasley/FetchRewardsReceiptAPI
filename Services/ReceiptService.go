@@ -58,46 +58,22 @@ func (service *ReceiptService) ProcessReceiptPoints(receiptId uuid.UUID) {
 
 	points := 0
 
-	points += getPointsFromRetailerName(receipt.Retailer)
-	points += getPointsFromTotal(receipt.Total)
-	points += getPointsFromItems(items)
-	points += getPointsFromDate(receipt.PurchaseDate)
+	points += GetPointsFromRetailerName(receipt.Retailer)
+	points += GetPointsFromTotal(receipt.Total)
+	points += GetPointsFromItems(items)
+	points += GetPointsFromDate(receipt.PurchaseDate)
 
 	service.receiptRepo.UpdateReceiptPoints(receiptId, points)
 }
 
-func processPoints(receipt *Entities.Receipt, items []*Entities.Item) int {
-	pointsChannel := make(chan int, 4)
-
-	go func() {
-		pointsChannel <- getPointsFromRetailerName(receipt.Retailer)
-	}()
-	go func() {
-		pointsChannel <- getPointsFromTotal(receipt.Total)
-	}()
-	go func() {
-		pointsChannel <- getPointsFromItems(items)
-	}()
-	go func() {
-		pointsChannel <- getPointsFromDate(receipt.PurchaseDate)
-	}()
-
-	points := 0
-	for i := 0; i < 4; i++ {
-		points += <-pointsChannel
-	}
-
-	return points
-}
-
-func getPointsFromRetailerName(str string) int {
+func GetPointsFromRetailerName(str string) int {
 	re := regexp.MustCompile("[^a-zA-Z0-9]+")
 	result := re.ReplaceAllString(str, "")
 
 	return len(result)
 }
 
-func getPointsFromTotal(total float64) int {
+func GetPointsFromTotal(total float64) int {
 	points := 0
 
 	if isRoundDollarAmount(total) {
@@ -111,7 +87,7 @@ func getPointsFromTotal(total float64) int {
 	return points
 }
 
-func getPointsFromItems(items []*Entities.Item) int {
+func GetPointsFromItems(items []*Entities.Item) int {
 	points := 0
 	points += len(items) / 2 * 5
 
@@ -125,7 +101,7 @@ func getPointsFromItems(items []*Entities.Item) int {
 	return points
 }
 
-func getPointsFromDate(date time.Time) int {
+func GetPointsFromDate(date time.Time) int {
 	points := 0
 
 	if date.Day()%2 != 0 {
